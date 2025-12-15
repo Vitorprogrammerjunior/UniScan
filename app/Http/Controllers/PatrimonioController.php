@@ -106,13 +106,23 @@ class PatrimonioController extends Controller
     {
         $patrimonio = Patrimonio::findOrFail($id);
 
-        $validated = $request->validate([
-            'codigo_barra' => 'required|string|unique:patrimonios,codigo_barra,' . $id,
-            'nome' => 'required|string|max:255',
-            'tipo_patrimonio_id' => 'required|exists:tipo_patrimonios,id',
-            'local_armazenamento_id' => 'required|exists:local_armazenamentos,id',
-            'situacao' => 'required|in:disponivel,manutencao,emprestado,descartado,separado_descarte',
-        ]);
+        // Validação diferente se vier da página pública (sem codigo_barra)
+        if ($request->has('redirect_to')) {
+            $validated = $request->validate([
+                'nome' => 'required|string|max:255',
+                'tipo_patrimonio_id' => 'required|exists:tipo_patrimonios,id',
+                'local_armazenamento_id' => 'required|exists:local_armazenamentos,id',
+                'situacao' => 'required|in:disponivel,manutencao,emprestado,descartado,separado_descarte',
+            ]);
+        } else {
+            $validated = $request->validate([
+                'codigo_barra' => 'required|string|unique:patrimonios,codigo_barra,' . $id,
+                'nome' => 'required|string|max:255',
+                'tipo_patrimonio_id' => 'required|exists:tipo_patrimonios,id',
+                'local_armazenamento_id' => 'required|exists:local_armazenamentos,id',
+                'situacao' => 'required|in:disponivel,manutencao,emprestado,descartado,separado_descarte',
+            ]);
+        }
 
         $changes = [];
         foreach ($validated as $key => $value) {
