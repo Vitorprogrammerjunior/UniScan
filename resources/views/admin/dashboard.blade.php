@@ -178,12 +178,18 @@
                 @forelse($ultimosLogs as $log)
                     <div class="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg">
                         <div class="w-8 h-8 bg-univc-100 rounded-full flex items-center justify-center flex-shrink-0">
-                            <i class="fas fa-user text-univc-600 text-sm"></i>
+                            <span class="text-univc-600 text-xs font-semibold">{{ strtoupper(substr($log->user->name ?? 'S', 0, 1)) }}</span>
                         </div>
                         <div class="flex-1 min-w-0">
                             <p class="text-sm text-gray-800">
-                                <span class="font-medium">{{ $log->user->name }}</span>
-                                <span class="text-gray-500">{{ $log->acao }}</span>
+                                <span class="font-semibold text-univc-600">{{ $log->user->name ?? 'Sistema' }}</span>
+                                @if($log->acao == 'Cadastro' || $log->acao == 'Cadastro via QR Code')
+                                    <span class="text-gray-600">cadastrou um patrimônio</span>
+                                @elseif($log->acao == 'Atualização')
+                                    <span class="text-gray-600">atualizou um patrimônio</span>
+                                @else
+                                    <span class="text-gray-600">{{ strtolower($log->acao) }}</span>
+                                @endif
                             </p>
                             <p class="text-xs text-gray-500 truncate">{{ $log->patrimonio->codigo_barra }} - {{ $log->patrimonio->nome }}</p>
                             <p class="text-xs text-gray-400">{{ $log->created_at->diffForHumans() }}</p>

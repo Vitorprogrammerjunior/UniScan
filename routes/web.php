@@ -9,6 +9,7 @@ use App\Http\Controllers\LocalArmazenamentoController;
 use App\Http\Controllers\PublicController;
 use App\Http\Controllers\QrCodeController;
 use App\Http\Controllers\RelatorioController;
+use App\Http\Controllers\UsuarioController;
 
 // Rota pública - verificar patrimônio via QR Code
 Route::get('/', function () {
@@ -52,4 +53,14 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     // Relatórios
     Route::get('/relatorios', [RelatorioController::class, 'index'])->name('relatorios.index');
     Route::post('/relatorios/gerar', [RelatorioController::class, 'gerar'])->name('relatorios.gerar');
+    
+    // Rota secreta - Gerenciamento de Usuários (Admin Master)
+    Route::prefix('master')->name('master.')->group(function () {
+        Route::get('/usuarios', [UsuarioController::class, 'index'])->name('usuarios.index');
+        Route::get('/usuarios/criar', [UsuarioController::class, 'create'])->name('usuarios.create');
+        Route::post('/usuarios', [UsuarioController::class, 'store'])->name('usuarios.store');
+        Route::get('/usuarios/{id}/editar', [UsuarioController::class, 'edit'])->name('usuarios.edit');
+        Route::put('/usuarios/{id}', [UsuarioController::class, 'update'])->name('usuarios.update');
+        Route::delete('/usuarios/{id}', [UsuarioController::class, 'destroy'])->name('usuarios.destroy');
+    });
 });
