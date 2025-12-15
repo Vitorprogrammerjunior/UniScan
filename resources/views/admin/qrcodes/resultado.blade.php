@@ -17,6 +17,7 @@
             left: 0;
             top: 0;
             width: 100%;
+            padding: 5mm;
         }
         .no-print {
             display: none !important;
@@ -24,6 +25,25 @@
         .qr-item {
             page-break-inside: avoid;
             break-inside: avoid;
+            border: 1px dashed #ccc !important;
+            padding: 2mm !important;
+            margin: 1mm !important;
+        }
+        .print-grid {
+            display: grid !important;
+            grid-template-columns: repeat(6, 1fr) !important;
+            gap: 2mm !important;
+        }
+        .qr-print-img {
+            width: 18mm !important;
+            height: 18mm !important;
+        }
+        .qr-print-code {
+            font-size: 7pt !important;
+            margin-top: 1mm !important;
+        }
+        .qr-print-label {
+            font-size: 5pt !important;
         }
     }
     
@@ -89,21 +109,16 @@
     </div>
     
     <div class="print-area bg-white rounded-xl shadow-sm p-6">
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+        <div class="print-grid grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-3">
             @foreach($qrcodes as $qr)
-                <div class="qr-item flex flex-col items-center p-4 border border-gray-200 rounded-lg">
-                    <div class="qr-svg-container w-32 h-32 mb-2">
+                <div class="qr-item flex flex-col items-center p-2 border border-gray-200 rounded-lg">
+                    <div class="qr-svg-container qr-print-img w-20 h-20">
                         <img src="{{ route('admin.qrcodes.unico', $qr['codigo']) }}" 
                              alt="QR Code {{ $qr['codigo'] }}" 
                              class="w-full h-full">
                     </div>
-                    <p class="font-mono text-sm font-bold text-gray-800">{{ $qr['codigo'] }}</p>
-                    <p class="text-xs text-gray-500">UNIVC</p>
-                    @if($qr['patrimonio']->cadastrado)
-                        <span class="mt-1 text-xs px-2 py-0.5 bg-green-100 text-green-700 rounded-full">Cadastrado</span>
-                    @else
-                        <span class="mt-1 text-xs px-2 py-0.5 bg-orange-100 text-orange-700 rounded-full">Pendente</span>
-                    @endif
+                    <p class="qr-print-code font-mono text-xs font-bold text-gray-800 mt-1">{{ $qr['codigo'] }}</p>
+                    <p class="qr-print-label text-[10px] text-gray-500">UNIVC</p>
                 </div>
             @endforeach
         </div>
