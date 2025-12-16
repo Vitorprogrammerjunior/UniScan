@@ -258,6 +258,86 @@
         </div>
     </div>
     
+    <!-- Pop-up de Atualização -->
+    @php
+        $versaoAtual = config('versao.atual');
+        $changelog = config('versao.changelog.' . $versaoAtual);
+    @endphp
+    
+    <div x-data="{ 
+            showModal: false,
+            versao: '{{ $versaoAtual }}',
+            init() {
+                const versaoVista = localStorage.getItem('uniscan_versao_vista');
+                if (versaoVista !== this.versao) {
+                    this.showModal = true;
+                }
+            },
+            fechar() {
+                localStorage.setItem('uniscan_versao_vista', this.versao);
+                this.showModal = false;
+            }
+         }"
+         x-show="showModal"
+         x-cloak
+         class="fixed inset-0 z-50 overflow-y-auto">
+        
+        <!-- Backdrop -->
+        <div x-show="showModal" 
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="transition ease-in duration-200"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             class="fixed inset-0 bg-black/50"></div>
+        
+        <!-- Modal -->
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div x-show="showModal"
+                 x-transition:enter="transition ease-out duration-300"
+                 x-transition:enter-start="opacity-0 scale-90"
+                 x-transition:enter-end="opacity-100 scale-100"
+                 x-transition:leave="transition ease-in duration-200"
+                 x-transition:leave-start="opacity-100 scale-100"
+                 x-transition:leave-end="opacity-0 scale-90"
+                 class="relative bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden">
+                
+                <!-- Header -->
+                <div class="bg-gradient-to-r from-univc-600 to-univc-700 px-6 py-8 text-center">
+                    <div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-rocket text-white text-2xl"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-white">{{ $changelog['titulo'] ?? 'Atualização!' }}</h2>
+                    <p class="text-univc-200 text-sm mt-1">Versão {{ $versaoAtual }} • {{ $changelog['data'] ?? '' }}</p>
+                </div>
+                
+                <!-- Conteúdo -->
+                <div class="px-6 py-6">
+                    <p class="text-gray-600 text-sm mb-4">Confira o que há de novo:</p>
+                    <ul class="space-y-3">
+                        @foreach($changelog['mudancas'] ?? [] as $mudanca)
+                            <li class="flex items-start space-x-3">
+                                <span class="flex-shrink-0 w-5 h-5 bg-univc-100 rounded-full flex items-center justify-center mt-0.5">
+                                    <i class="fas fa-check text-univc-600 text-xs"></i>
+                                </span>
+                                <span class="text-gray-700 text-sm">{{ $mudanca }}</span>
+                            </li>
+                        @endforeach
+                    </ul>
+                </div>
+                
+                <!-- Footer -->
+                <div class="px-6 pb-6">
+                    <button @click="fechar()" 
+                            class="w-full px-6 py-3 bg-univc-600 text-white rounded-xl hover:bg-univc-700 transition-colors font-medium">
+                        <i class="fas fa-thumbs-up mr-2"></i> Entendi!
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
     @stack('scripts')
 </body>
 </html>
