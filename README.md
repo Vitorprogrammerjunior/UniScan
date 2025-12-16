@@ -1,97 +1,217 @@
 # 🔍 UniScan - Sistema de Gestão de Patrimônios
 
-Sistema de gestão de patrimônios com QR Code desenvolvido para a **UNIVC**.
+<p align="center">
+  <img src="public/images/logo-horizontal.png" alt="UniScan Logo" width="300">
+</p>
 
-## 📋 Funcionalidades
+<p align="center">
+  <strong>Sistema completo de gestão de patrimônios com QR Code</strong><br>
+  Desenvolvido para a <strong>UNIVC - Centro Universitário Cidade Verde</strong>
+</p>
 
-- ✅ Cadastro de patrimônios com QR Code
-- ✅ Geração automática de QR Codes em lote
-- ✅ Leitura de QR Code para consulta pública
-- ✅ Cadastro de patrimônio via escaneamento (admin)
+<p align="center">
+  <img src="https://img.shields.io/badge/Laravel-12.x-FF2D20?style=flat-square&logo=laravel" alt="Laravel">
+  <img src="https://img.shields.io/badge/PHP-8.2+-777BB4?style=flat-square&logo=php" alt="PHP">
+  <img src="https://img.shields.io/badge/MySQL-5.7+-4479A1?style=flat-square&logo=mysql&logoColor=white" alt="MySQL">
+  <img src="https://img.shields.io/badge/TailwindCSS-3.x-38B2AC?style=flat-square&logo=tailwind-css" alt="TailwindCSS">
+  <img src="https://img.shields.io/badge/Versão-1.2.0-green?style=flat-square" alt="Versão">
+</p>
+
+---
+
+## 📋 Índice
+
+- [Sobre o Projeto](#-sobre-o-projeto)
+- [Funcionalidades](#-funcionalidades)
+- [Tecnologias](#-tecnologias)
+- [Requisitos](#-requisitos)
+- [Instalação](#-instalação)
+- [Deploy em Produção](#-deploy-em-produção)
+- [Uso](#-uso)
+- [Estrutura do Projeto](#-estrutura-do-projeto)
+- [Changelog](#-changelog)
+- [Comandos Úteis](#-comandos-úteis)
+
+---
+
+## 📖 Sobre o Projeto
+
+O **UniScan** é um sistema web desenvolvido para facilitar a gestão de patrimônios da UNIVC através de QR Codes. O sistema permite:
+
+- Identificar rapidamente qualquer patrimônio escaneando seu QR Code
+- Manter um controle centralizado de todos os bens da instituição
+- Rastrear empréstimos entre setores
+- Gerar relatórios detalhados em PDF
+- Visualizar histórico completo de alterações
+
+### Por que UniScan?
+
+| Problema Anterior | Solução UniScan |
+|-------------------|-----------------|
+| Planilhas desatualizadas | Banco de dados centralizado em tempo real |
+| Difícil localizar patrimônios | QR Code em cada item para consulta instantânea |
+| Sem controle de empréstimos | Sistema de empréstimos com rastreamento completo |
+| Relatórios manuais | Geração automática de PDFs |
+| Sem histórico de mudanças | Log completo de todas as alterações |
+
+---
+
+## ✨ Funcionalidades
+
+### 📦 Gestão de Patrimônios
+- ✅ Cadastro completo com código de barras, nome, tipo e local
+- ✅ Situações: Disponível, Manutenção, Emprestado, Descartado, Separado p/ Descarte
+- ✅ Busca e filtros avançados
 - ✅ Edição rápida via QR Code (admin)
-- ✅ Controle de tipos de patrimônio
-- ✅ Controle de locais de armazenamento
-- ✅ Histórico de alterações (logs)
-- ✅ Relatórios em PDF
-- ✅ Dashboard com estatísticas
 
-## 🚀 Requisitos
+### 📱 QR Codes
+- ✅ Geração automática de QR Codes em lote
+- ✅ Impressão em folha A4 otimizada (etiquetas 3x10)
+- ✅ Consulta pública via escaneamento
+- ✅ Cadastro rápido de patrimônios pendentes
 
-- PHP 8.1 ou superior
+### 🔄 Sistema de Empréstimos
+- ✅ Registro de empréstimos entre locais
+- ✅ Visualização vai-volta (Local Origem ↔ Local Destino)
+- ✅ Histórico de empréstimos por patrimônio
+- ✅ Devolução automática ao mudar status
+- ✅ Painel dedicado para empréstimos ativos
+
+### 📊 Relatórios em PDF
+- ✅ Relatório geral de patrimônios
+- ✅ Filtros por tipo, local e situação
+- ✅ Tabela de empréstimos do período
+- ✅ Estatísticas resumidas
+
+### 👥 Multi-Usuários
+- ✅ Sistema de autenticação
+- ✅ Gerenciamento de usuários (admin master)
+- ✅ Log de ações por usuário
+
+### 📈 Dashboard
+- ✅ Estatísticas em tempo real
+- ✅ Cards com totais por situação
+- ✅ Últimas movimentações
+
+### 🔔 Sistema de Changelog
+- ✅ Pop-up automático de novidades
+- ✅ Exibido uma vez por versão
+- ✅ Histórico de atualizações
+
+---
+
+## 🛠 Tecnologias
+
+### Backend
+- **[Laravel 12](https://laravel.com/)** - Framework PHP
+- **[PHP 8.2+](https://php.net/)** - Linguagem server-side
+- **[MySQL](https://mysql.com/)** - Banco de dados relacional
+
+### Frontend
+- **[Blade](https://laravel.com/docs/blade)** - Template engine do Laravel
+- **[TailwindCSS](https://tailwindcss.com/)** - Framework CSS utilitário
+- **[Alpine.js](https://alpinejs.dev/)** - JavaScript reativo
+- **[Font Awesome](https://fontawesome.com/)** - Ícones
+
+### Bibliotecas Principais
+- **[chillerlan/php-qrcode](https://github.com/chillerlan/php-qrcode)** - Geração de QR Codes
+- **[barryvdh/laravel-dompdf](https://github.com/barryvdh/laravel-dompdf)** - Geração de PDFs
+
+---
+
+## 📋 Requisitos
+
+### Servidor
+- PHP 8.2 ou superior
 - MySQL 5.7+ ou MariaDB 10.3+
-- Composer
-- Extensões PHP: BCMath, Ctype, Fileinfo, JSON, Mbstring, OpenSSL, PDO, Tokenizer, XML, GD
+- Composer 2.x
+- Extensões PHP:
+  - BCMath, Ctype, Fileinfo, JSON
+  - Mbstring, OpenSSL, PDO (pdo_mysql)
+  - Tokenizer, XML, GD
 
-## 📦 Instalação Local (Desenvolvimento)
+---
+
+## 🚀 Instalação
+
+### Desenvolvimento Local
 
 ```bash
-# Clonar o repositório
-git clone [url-do-repositorio]
+# 1. Clone o repositório
+git clone https://github.com/seu-usuario/uniscan.git
 cd uniscan
 
-# Instalar dependências
+# 2. Instale as dependências PHP
 composer install
 
-# Copiar arquivo de configuração
+# 3. Copie o arquivo de ambiente
 cp .env.example .env
 
-# Gerar chave da aplicação
+# 4. Gere a chave da aplicação
 php artisan key:generate
 
-# Configurar banco de dados no .env
-# Para desenvolvimento local, pode usar SQLite:
+# 5. Configure o banco de dados no .env
+# Para desenvolvimento rápido, use SQLite:
 # DB_CONNECTION=sqlite
+# 
+# Ou MySQL:
+# DB_CONNECTION=mysql
+# DB_HOST=127.0.0.1
+# DB_PORT=3306
+# DB_DATABASE=uniscan
+# DB_USERNAME=root
+# DB_PASSWORD=
 
-# Criar banco SQLite (se estiver usando)
+# 6. Crie o banco (SQLite)
 touch database/database.sqlite
 
-# Executar migrations
+# 7. Execute as migrations e seed
 php artisan migrate
-
-# Criar usuário admin
 php artisan db:seed
 
-# Iniciar servidor
+# 8. Inicie o servidor
 php artisan serve
 ```
 
-## 🌐 Deploy na Hostgator (Produção)
+Acesse: **http://localhost:8000**
 
-### Passo 1: Preparar arquivos
+### 🔐 Credenciais Padrão
+| Campo | Valor |
+|-------|-------|
+| Email | `admin@univc.edu.br` |
+| Senha | `admin123` |
 
+⚠️ **IMPORTANTE:** Altere a senha após o primeiro login!
+
+---
+
+## 🌐 Deploy em Produção
+
+### Hostgator / cPanel
+
+#### 1. Preparar arquivos
 ```bash
-# Instalar dependências de produção
 composer install --optimize-autoloader --no-dev
-
-# Limpar caches
 php artisan config:clear
 php artisan cache:clear
 php artisan view:clear
 ```
 
-### Passo 2: Upload via cPanel
-
+#### 2. Upload via cPanel
 1. Acesse o **cPanel** da Hostgator
 2. Vá em **Gerenciador de Arquivos**
 3. Navegue até `public_html`
-4. Faça upload de **TODOS** os arquivos do projeto
+4. Faça upload de todos os arquivos
 
-### Passo 3: Criar Banco de Dados MySQL
+#### 3. Criar Banco MySQL
+1. cPanel > **Bancos de Dados MySQL**
+2. Crie banco, usuário e vincule com **TODOS OS PRIVILÉGIOS**
 
-1. No cPanel, vá em **Bancos de Dados MySQL**
-2. Crie um novo banco de dados
-3. Crie um usuário para o banco
-4. Adicione o usuário ao banco com **TODOS OS PRIVILÉGIOS**
-
-### Passo 4: Configurar .env
-
-1. Renomeie `.env.example` para `.env`
-2. Configure as variáveis:
-
+#### 4. Configurar .env
 ```env
 APP_NAME=UniScan
 APP_ENV=production
-APP_KEY=  # Será gerado no próximo passo
+APP_KEY=base64:SUA_CHAVE_AQUI
 APP_DEBUG=false
 APP_URL=https://seu-dominio.com.br
 
@@ -107,71 +227,108 @@ CACHE_STORE=file
 QUEUE_CONNECTION=sync
 ```
 
-### Passo 5: Gerar APP_KEY
-
-Acesse via SSH ou Terminal do cPanel:
-
+#### 5. Executar Migrations
 ```bash
-cd public_html
 php artisan key:generate
-```
-
-Ou gere manualmente em: https://generate-random.org/laravel-key-generator
-
-### Passo 6: Executar Migrations
-
-```bash
 php artisan migrate --force
 php artisan db:seed --force
 ```
 
-### Passo 7: Permissões de Pastas
-
+#### 6. Permissões
 ```bash
 chmod -R 755 storage
 chmod -R 755 bootstrap/cache
 ```
 
-### Passo 8: Configurar PHP (se necessário)
+---
 
-No cPanel > **Selecionar Versão do PHP**:
-- Selecione PHP 8.1 ou 8.2
-- Ative as extensões: `pdo_mysql`, `mbstring`, `xml`, `gd`, `fileinfo`
+## 📱 Uso
 
-## 👤 Acesso Padrão
+### Consulta Pública (QR Code)
+1. Escaneie o QR Code do patrimônio com a câmera do celular
+2. Você será redirecionado para a página de informações
+3. Veja nome, tipo, local e situação do patrimônio
 
-Após o seed, use:
-- **Email:** admin@univc.edu.br
-- **Senha:** admin123
+### Painel Administrativo
+1. Acesse `/login` e faça login
+2. Use o menu lateral para navegar:
+   - **Dashboard** - Visão geral
+   - **Patrimônios** - Cadastro e edição
+   - **QR Codes** - Geração e impressão
+   - **Emprestados** - Controle de empréstimos
+   - **Relatórios** - Geração de PDFs
+   - **Tipos** - Categorias de patrimônios
+   - **Locais** - Setores/salas
 
-⚠️ **IMPORTANTE:** Altere a senha após o primeiro login!
+### Gerenciar Usuários (Admin Master)
+Acesse: `/admin/master/usuarios` (rota oculta no menu)
 
-## 🔒 Segurança em Produção
+---
 
-1. **Sempre** mantenha `APP_DEBUG=false`
-2. Use HTTPS (SSL)
-3. Altere a senha padrão do admin
-4. Configure backups automáticos do banco de dados
-5. Mantenha o Laravel e dependências atualizados
-
-## 📁 Estrutura de Pastas
+## 📁 Estrutura do Projeto
 
 ```
 uniscan/
-├── app/                    # Código da aplicação
-│   ├── Http/Controllers/   # Controllers
-│   └── Models/             # Models
+├── app/
+│   ├── Console/Commands/         # Comandos Artisan
+│   ├── Http/Controllers/         # Controllers
+│   │   ├── AuthController.php
+│   │   ├── DashboardController.php
+│   │   ├── EmprestimoController.php
+│   │   ├── PatrimonioController.php
+│   │   ├── QrCodeController.php
+│   │   └── RelatorioController.php
+│   └── Models/                   # Models Eloquent
+│       ├── Emprestimo.php
+│       ├── LocalArmazenamento.php
+│       ├── LogPatrimonio.php
+│       ├── Patrimonio.php
+│       ├── TipoPatrimonio.php
+│       └── User.php
+├── config/
+│   └── versao.php               # Versão e changelog
 ├── database/
-│   ├── migrations/         # Migrations
-│   └── seeders/            # Seeders
-├── public/                 # Arquivos públicos
-│   └── images/             # Logos
-├── resources/views/        # Views Blade
-├── routes/web.php          # Rotas
-└── .env                    # Configurações (não committar!)
+│   ├── migrations/              # Estrutura do banco
+│   └── seeders/                 # Dados iniciais
+├── public/
+│   ├── images/                  # Logos
+│   └── index.php
+├── resources/views/
+│   ├── admin/                   # Views do painel
+│   ├── auth/                    # Views de login
+│   ├── components/              # Componentes Blade
+│   ├── layouts/                 # Layouts base
+│   └── public/                  # Views públicas
+├── routes/web.php               # Rotas
+└── .env                         # Configurações (NÃO COMMITTAR!)
 ```
 
-## 🛠️ Comandos Úteis
+---
+
+## 📝 Changelog
+
+### v1.2.0 (16/12/2024) - Sistema de Empréstimos
+- ✨ Nova funcionalidade de empréstimos entre locais
+- ✨ Visualização vai-volta (origem ↔ destino)
+- ✨ Página dedicada para empréstimos ativos
+- ✨ Relatórios incluem tabela de empréstimos
+- ✨ Devolução automática ao mudar status
+
+### v1.1.0 (16/12/2024) - Multi-Usuários
+- ✨ Sistema de multi-usuários
+- ✨ Gerenciamento de usuários (admin master)
+- ✨ Sistema de changelog com pop-up
+
+### v1.0.0 (15/12/2024) - Lançamento Inicial
+- ✨ Cadastro de patrimônios
+- ✨ Geração de QR Codes
+- ✨ Consulta pública
+- ✨ Relatórios em PDF
+- ✨ Dashboard com estatísticas
+
+---
+
+## 🧹 Comandos Úteis
 
 ```bash
 # Limpar todos os caches
@@ -180,13 +337,28 @@ php artisan optimize:clear
 # Otimizar para produção
 php artisan optimize
 
-# Ver rotas
+# Ver rotas disponíveis
 php artisan route:list
 
-# Criar novo admin via Tinker
+# Criar novo usuário via Tinker
 php artisan tinker
->>> User::create(['name'=>'Admin','email'=>'novo@email.com','password'=>bcrypt('senha123')])
+>>> User::create(['name'=>'Admin','email'=>'email@univc.edu.br','password'=>bcrypt('senha123')])
+
+# Limpar empréstimos antigos (devolvidos há mais de 6 meses)
+php artisan emprestimos:limpar
 ```
+
+---
+
+## 🛡️ Segurança
+
+- **Sempre** mantenha `APP_DEBUG=false` em produção
+- Use HTTPS (certificado SSL)
+- Altere a senha padrão imediatamente
+- Configure backups automáticos do banco
+- Mantenha as dependências atualizadas
+
+---
 
 ## 📞 Suporte
 
@@ -194,4 +366,6 @@ Em caso de dúvidas, entre em contato com a equipe de TI da UNIVC.
 
 ---
 
-Desenvolvido com ❤️ para UNIVC
+<p align="center">
+  Desenvolvido com ❤️ para <strong>UNIVC</strong>
+</p>

@@ -1,8 +1,17 @@
+# Logs
 *.log
+
+# OS files
 .DS_Store
+Thumbs.db
+
+# Environment
 .env
 .env.backup
 .env.production
+.env.local
+
+# IDE/Editor
 .phpactor.json
 .phpunit.result.cache
 /.fleet
@@ -11,6 +20,11 @@
 /.phpunit.cache
 /.vscode
 /.zed
+*.swp
+*.swo
+*~
+
+# Laravel
 /auth.json
 /node_modules
 /public/build
@@ -21,4 +35,35 @@
 /vendor
 Homestead.json
 Homestead.yaml
-Thumbs.db
+
+# Composer
+composer.phar
+
+# PHP Unit
+.phpunit.result.cache
+phpunit.xml.bak
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+
+# Import/Export scripts (development only)
+importar_*.php
+analisar_*.php
+ler_*.php
+contar_*.php
+*.txt
+!README.txt
+patrimonios_*.json
+
+# PDF files (large files)
+*.pdf
+
+# Image duplicates/temp
+*Cópia*
+*cópia*
+
+# npm debug
+npm-debug.log
+yarn-error.log
