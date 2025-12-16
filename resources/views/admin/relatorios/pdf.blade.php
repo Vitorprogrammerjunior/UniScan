@@ -150,6 +150,60 @@
     
     <p class="total">Total de registros: {{ $patrimonios->count() }}</p>
     
+    @if($emprestimosDoMes->count() > 0)
+    <!-- Seção de Empréstimos do Mês -->
+    <div style="page-break-before: auto; margin-top: 30px;">
+        <div style="background: #fef3c7; padding: 10px 15px; margin-bottom: 15px; border-radius: 5px; border-left: 4px solid #f59e0b;">
+            <h2 style="color: #92400e; font-size: 16px; margin: 0;">
+                📦 Empréstimos do Mês ({{ now()->format('F/Y') }})
+            </h2>
+            <p style="color: #92400e; font-size: 11px; margin-top: 5px;">
+                Total de {{ $emprestimosDoMes->count() }} empréstimo(s) registrado(s) este mês
+            </p>
+        </div>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 80px; background: #f59e0b;">Código</th>
+                    <th style="background: #f59e0b;">Patrimônio</th>
+                    <th style="width: 100px; background: #f59e0b;">De</th>
+                    <th style="width: 100px; background: #f59e0b;">Para</th>
+                    <th style="width: 80px; background: #f59e0b;">Data</th>
+                    <th style="width: 60px; background: #f59e0b;">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($emprestimosDoMes as $emprestimo)
+                    <tr>
+                        <td><strong>{{ $emprestimo->patrimonio->codigo_barra }}</strong></td>
+                        <td>{{ Str::limit($emprestimo->patrimonio->nome, 40) }}</td>
+                        <td>{{ $emprestimo->localOriginal->nome }}</td>
+                        <td>{{ $emprestimo->localEmprestado->nome }}</td>
+                        <td>{{ $emprestimo->data_emprestimo->format('d/m/Y') }}</td>
+                        <td>
+                            @if($emprestimo->devolvido)
+                                <span style="background: #dcfce7; color: #166534; padding: 2px 6px; border-radius: 8px; font-size: 9px;">
+                                    Devolvido
+                                </span>
+                            @else
+                                <span style="background: #dbeafe; color: #1e40af; padding: 2px 6px; border-radius: 8px; font-size: 9px;">
+                                    Ativo
+                                </span>
+                            @endif
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+        
+        <p style="text-align: right; padding: 10px; font-weight: bold; color: #f59e0b;">
+            Empréstimos ativos: {{ $emprestimosDoMes->where('devolvido', false)->count() }} | 
+            Devolvidos: {{ $emprestimosDoMes->where('devolvido', true)->count() }}
+        </p>
+    </div>
+    @endif
+    
     <div class="footer">
         <p>© {{ date('Y') }} UNIVC - Sistema de Gestão de Patrimônios</p>
     </div>

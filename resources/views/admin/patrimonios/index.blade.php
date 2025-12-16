@@ -111,10 +111,20 @@
                                         'descartado' => 'bg-red-100 text-red-800',
                                         'separado_descarte' => 'bg-orange-100 text-orange-800',
                                     ];
+                                    $emprestimoAtivo = $patrimonio->situacao === 'emprestado' 
+                                        ? $patrimonio->emprestimos()->where('devolvido', false)->first() 
+                                        : null;
                                 @endphp
                                 <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full {{ $situacaoColors[$patrimonio->situacao] ?? 'bg-gray-100 text-gray-800' }}">
                                     {{ $patrimonio->situacao_label }}
                                 </span>
+                                @if($emprestimoAtivo)
+                                    <div class="flex items-center space-x-1 mt-1 text-xs text-gray-500">
+                                        <span>{{ $emprestimoAtivo->localOriginal->nome }}</span>
+                                        <i class="fas fa-arrows-left-right text-blue-400"></i>
+                                        <span>{{ $emprestimoAtivo->localEmprestado->nome }}</span>
+                                    </div>
+                                @endif
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-center">
                                 <div class="flex items-center justify-center space-x-2">

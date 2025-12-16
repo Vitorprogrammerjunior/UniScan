@@ -36,6 +36,17 @@ class Patrimonio extends Model
         return $this->hasMany(LogPatrimonio::class);
     }
 
+    public function emprestimos(): HasMany
+    {
+        return $this->hasMany(Emprestimo::class);
+    }
+
+    // Retorna o empréstimo ativo atual (se houver)
+    public function emprestimoAtivo()
+    {
+        return $this->hasOne(Emprestimo::class)->where('devolvido', false)->latest();
+    }
+
     public function getSituacaoLabelAttribute(): string
     {
         return match($this->situacao) {

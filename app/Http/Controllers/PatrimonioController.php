@@ -6,6 +6,7 @@ use App\Models\Patrimonio;
 use App\Models\TipoPatrimonio;
 use App\Models\LocalArmazenamento;
 use App\Models\LogPatrimonio;
+use App\Models\Emprestimo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -62,24 +63,52 @@ class PatrimonioController extends Controller
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
+        $rules = [
             'codigo_barra' => 'required|string|unique:patrimonios,codigo_barra',
             'nome' => 'required|string|max:255',
             'tipo_patrimonio_id' => 'required|exists:tipo_patrimonios,id',
             'local_armazenamento_id' => 'required|exists:local_armazenamentos,id',
             'situacao' => 'required|in:disponivel,manutencao,emprestado,descartado,separado_descarte',
-        ]);
+        ];
+
+        // Se situação é emprestado, exige os campos de empréstimo
+        if ($request->situacao === 'emprestado') {
+            $rules['local_original_id'] = 'required|exists:local_armazenamentos,id';
+            $rules['local_emprestado_id'] = 'required|exists:local_armazenamentos,id|different:local_original_id';
+        }
+
+        $validated = $request->validate($rules);
 
         $validated['cadastrado'] = true;
 
         $patrimonio = Patrimonio::create($validated);
 
-        LogPatrimonio::create([
-            'patrimonio_id' => $patrimonio->id,
-            'user_id' => Auth::id(),
-            'acao' => 'Cadastro',
-            'detalhes' => 'Patrimônio cadastrado no sistema',
-        ]);
+        // Se é emprestado, cria o registro de empréstimo
+        if ($request->situacao === 'emprestado') {
+            Emprestimo::create([
+                'patrimonio_id' => $patrimonio->id,
+                'local_original_id' => $request->local_original_id,
+                'local_emprestado_id' => $request->local_emprestado_id,
+                'user_id' => Auth::id(),
+            ]);
+
+            $localOriginal = LocalArmazenamento::find($request->local_original_id);
+            $localDestino = LocalArmazenamento::find($request->local_emprestado_id);
+
+            LogPatrimonio::create([
+                'patrimonio_id' => $patrimonio->id,
+                'user_id' => Auth::id(),
+                'acao' => 'Cadastro + Empréstimo',
+                'detalhes' => "Patrimônio cadastrado como emprestado: {$localOriginal->nome} → {$localDestino->nome}",
+            ]);
+        } else {
+            LogPatrimonio::create([
+                'patrimonio_id' => $patrimonio->id,
+                'user_id' => Auth::id(),
+                'acao' => 'Cadastro',
+                'detalhes' => 'Patrimônio cadastrado no sistema',
+            ]);
+        }
 
         return redirect()->route('admin.patrimonios.index')
             ->with('success', 'Patrimônio cadastrado com sucesso!');
@@ -105,24 +134,33 @@ class PatrimonioController extends Controller
     public function update(Request $request, string $id)
     {
         $patrimonio = Patrimonio::findOrFail($id);
+        $situacaoAnterior = $patrimonio->situacao;
 
         // Validação diferente se vier da página pública (sem codigo_barra)
         if ($request->has('redirect_to')) {
-            $validated = $request->validate([
+            $rules = [
                 'nome' => 'required|string|max:255',
                 'tipo_patrimonio_id' => 'required|exists:tipo_patrimonios,id',
                 'local_armazenamento_id' => 'required|exists:local_armazenamentos,id',
                 'situacao' => 'required|in:disponivel,manutencao,emprestado,descartado,separado_descarte',
-            ]);
+            ];
         } else {
-            $validated = $request->validate([
+            $rules = [
                 'codigo_barra' => 'required|string|unique:patrimonios,codigo_barra,' . $id,
                 'nome' => 'required|string|max:255',
                 'tipo_patrimonio_id' => 'required|exists:tipo_patrimonios,id',
                 'local_armazenamento_id' => 'required|exists:local_armazenamentos,id',
                 'situacao' => 'required|in:disponivel,manutencao,emprestado,descartado,separado_descarte',
-            ]);
+            ];
         }
+
+        // Se situação é emprestado, exige os campos de empréstimo
+        if ($request->situacao === 'emprestado') {
+            $rules['local_original_id'] = 'required|exists:local_armazenamentos,id';
+            $rules['local_emprestado_id'] = 'required|exists:local_armazenamentos,id|different:local_original_id';
+        }
+
+        $validated = $request->validate($rules);
 
         $changes = [];
         foreach ($validated as $key => $value) {
@@ -133,6 +171,57 @@ class PatrimonioController extends Controller
 
         $validated['cadastrado'] = true;
         $patrimonio->update($validated);
+
+        // Gerenciar empréstimos
+        $emprestimoAtivo = Emprestimo::where('patrimonio_id', $patrimonio->id)
+            ->where('devolvido', false)
+            ->first();
+
+        // Se mudou de emprestado para outra situação = devolução
+        if ($situacaoAnterior === 'emprestado' && $request->situacao !== 'emprestado' && $emprestimoAtivo) {
+            $emprestimoAtivo->update([
+                'devolvido' => true,
+                'data_devolucao' => now(),
+            ]);
+
+            $changes[] = "Empréstimo devolvido: {$emprestimoAtivo->localOriginal->nome} ← {$emprestimoAtivo->localEmprestado->nome}";
+        }
+        // Se é emprestado e não tinha empréstimo ativo, cria novo
+        elseif ($request->situacao === 'emprestado' && !$emprestimoAtivo) {
+            Emprestimo::create([
+                'patrimonio_id' => $patrimonio->id,
+                'local_original_id' => $request->local_original_id,
+                'local_emprestado_id' => $request->local_emprestado_id,
+                'user_id' => Auth::id(),
+            ]);
+
+            $localOriginal = LocalArmazenamento::find($request->local_original_id);
+            $localDestino = LocalArmazenamento::find($request->local_emprestado_id);
+            $changes[] = "Empréstimo criado: {$localOriginal->nome} → {$localDestino->nome}";
+        }
+        // Se é emprestado e tinha empréstimo ativo, verifica se mudou os locais
+        elseif ($request->situacao === 'emprestado' && $emprestimoAtivo) {
+            if ($emprestimoAtivo->local_original_id != $request->local_original_id || 
+                $emprestimoAtivo->local_emprestado_id != $request->local_emprestado_id) {
+                // Fecha o empréstimo antigo
+                $emprestimoAtivo->update([
+                    'devolvido' => true,
+                    'data_devolucao' => now(),
+                ]);
+
+                // Cria novo empréstimo
+                Emprestimo::create([
+                    'patrimonio_id' => $patrimonio->id,
+                    'local_original_id' => $request->local_original_id,
+                    'local_emprestado_id' => $request->local_emprestado_id,
+                    'user_id' => Auth::id(),
+                ]);
+
+                $localOriginal = LocalArmazenamento::find($request->local_original_id);
+                $localDestino = LocalArmazenamento::find($request->local_emprestado_id);
+                $changes[] = "Empréstimo alterado: {$localOriginal->nome} → {$localDestino->nome}";
+            }
+        }
 
         if (!empty($changes)) {
             LogPatrimonio::create([
@@ -167,22 +256,50 @@ class PatrimonioController extends Controller
     {
         $patrimonio = Patrimonio::where('cadastrado', false)->findOrFail($id);
 
-        $validated = $request->validate([
+        $rules = [
             'nome' => 'required|string|max:255',
             'tipo_patrimonio_id' => 'required|exists:tipo_patrimonios,id',
             'local_armazenamento_id' => 'required|exists:local_armazenamentos,id',
             'situacao' => 'required|in:disponivel,manutencao,emprestado,descartado,separado_descarte',
-        ]);
+        ];
+
+        // Se situação é emprestado, exige os campos de empréstimo
+        if ($request->situacao === 'emprestado') {
+            $rules['local_original_id'] = 'required|exists:local_armazenamentos,id';
+            $rules['local_emprestado_id'] = 'required|exists:local_armazenamentos,id|different:local_original_id';
+        }
+
+        $validated = $request->validate($rules);
 
         $validated['cadastrado'] = true;
         $patrimonio->update($validated);
 
-        LogPatrimonio::create([
-            'patrimonio_id' => $patrimonio->id,
-            'user_id' => Auth::id(),
-            'acao' => 'Cadastro via QR Code',
-            'detalhes' => 'Patrimônio cadastrado através da leitura do QR Code',
-        ]);
+        // Se é emprestado, cria o registro de empréstimo
+        if ($request->situacao === 'emprestado') {
+            Emprestimo::create([
+                'patrimonio_id' => $patrimonio->id,
+                'local_original_id' => $request->local_original_id,
+                'local_emprestado_id' => $request->local_emprestado_id,
+                'user_id' => Auth::id(),
+            ]);
+
+            $localOriginal = LocalArmazenamento::find($request->local_original_id);
+            $localDestino = LocalArmazenamento::find($request->local_emprestado_id);
+
+            LogPatrimonio::create([
+                'patrimonio_id' => $patrimonio->id,
+                'user_id' => Auth::id(),
+                'acao' => 'Cadastro via QR Code + Empréstimo',
+                'detalhes' => "Patrimônio cadastrado como emprestado: {$localOriginal->nome} → {$localDestino->nome}",
+            ]);
+        } else {
+            LogPatrimonio::create([
+                'patrimonio_id' => $patrimonio->id,
+                'user_id' => Auth::id(),
+                'acao' => 'Cadastro via QR Code',
+                'detalhes' => 'Patrimônio cadastrado através da leitura do QR Code',
+            ]);
+        }
 
         return redirect()->route('patrimonio.verificar', $patrimonio->codigo_barra)
             ->with('success', 'Patrimônio cadastrado com sucesso!');

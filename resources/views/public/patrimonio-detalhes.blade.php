@@ -76,6 +76,7 @@
                             'separado_descarte' => ['icon' => 'fa-exclamation-triangle', 'bg' => 'bg-orange-100', 'text' => 'text-orange-600', 'badge' => 'bg-orange-500'],
                         ];
                         $config = $situacaoConfig[$patrimonio->situacao] ?? $situacaoConfig['disponivel'];
+                        $emprestimoAtivo = $patrimonio->emprestimos()->where('devolvido', false)->first();
                     @endphp
                     <div class="w-10 h-10 {{ $config['bg'] }} rounded-lg flex items-center justify-center">
                         <i class="fas {{ $config['icon'] }} {{ $config['text'] }}"></i>
@@ -87,6 +88,31 @@
                 </div>
                 <span class="w-3 h-3 {{ $config['badge'] }} rounded-full animate-pulse"></span>
             </div>
+            
+            @if($emprestimoAtivo)
+            <!-- Informações do Empréstimo -->
+            <div class="p-4 bg-yellow-50 border border-yellow-200 rounded-xl">
+                <div class="flex items-center space-x-2 text-yellow-700 mb-3">
+                    <i class="fas fa-exchange-alt"></i>
+                    <span class="font-medium text-sm">Empréstimo Ativo</span>
+                </div>
+                
+                <div class="flex items-center justify-center space-x-2">
+                    <span class="px-3 py-1.5 bg-blue-100 text-blue-700 rounded-lg text-sm font-medium">
+                        {{ $emprestimoAtivo->localOriginal->nome }}
+                    </span>
+                    <i class="fas fa-arrows-left-right text-yellow-600"></i>
+                    <span class="px-3 py-1.5 bg-green-100 text-green-700 rounded-lg text-sm font-medium">
+                        {{ $emprestimoAtivo->localEmprestado->nome }}
+                    </span>
+                </div>
+                
+                <p class="text-center text-xs text-yellow-600 mt-2">
+                    <i class="fas fa-clock mr-1"></i>
+                    Desde {{ $emprestimoAtivo->data_emprestimo->format('d/m/Y') }}
+                </p>
+            </div>
+            @endif
         </div>
         
         <!-- Formulário de Edição (apenas para Admin) -->
@@ -142,7 +168,9 @@
                         <label for="situacao" class="block text-sm font-medium text-gray-700 mb-1">
                             Situação *
                         </label>
-                        <select id="situacao" name="situacao" required
+                        <select id="situacao_public" name="situacao" required
+                                x-data
+                                x-on:change="$dispatch('situacao-changed-public', $event.target.value)"
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-univc-500 focus:border-univc-500">
                             <option value="disponivel" {{ $patrimonio->situacao == 'disponivel' ? 'selected' : '' }}>Disponível</option>
                             <option value="manutencao" {{ $patrimonio->situacao == 'manutencao' ? 'selected' : '' }}>Manutenção</option>
@@ -150,6 +178,54 @@
                             <option value="descartado" {{ $patrimonio->situacao == 'descartado' ? 'selected' : '' }}>Descartado</option>
                             <option value="separado_descarte" {{ $patrimonio->situacao == 'separado_descarte' ? 'selected' : '' }}>Separado p/ Descarte</option>
                         </select>
+                    </div>
+                    
+                    @php
+                        $locais = \App\Models\LocalArmazenamento::orderBy('nome')->get();
+                        $emprestimoAtivoForm = $patrimonio->emprestimos()->where('devolvido', false)->first();
+                    @endphp
+                    
+                    <!-- Campos de Empréstimo (aparecem apenas quando situação = emprestado) -->
+                    <div x-data="{ mostrar: '{{ $patrimonio->situacao }}' === 'emprestado' }"
+                         x-on:situacao-changed-public.window="mostrar = $event.detail === 'emprestado'"
+                         x-show="mostrar"
+                         x-cloak
+                         class="bg-yellow-50 border border-yellow-200 rounded-lg p-3 space-y-3">
+                        
+                        <div class="flex items-center space-x-2 text-yellow-700 text-sm">
+                            <i class="fas fa-exchange-alt"></i>
+                            <span class="font-medium">Empréstimo</span>
+                        </div>
+                        
+                        <div>
+                            <label for="local_original_id" class="block text-xs font-medium text-gray-700 mb-1">
+                                Local de Origem *
+                            </label>
+                            <select id="local_original_id" name="local_original_id"
+                                    class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-univc-500 focus:border-univc-500">
+                                <option value="">Selecione...</option>
+                                @foreach($locais as $local)
+                                    <option value="{{ $local->id }}" {{ $emprestimoAtivoForm?->local_original_id == $local->id ? 'selected' : '' }}>
+                                        {{ $local->nome }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label for="local_emprestado_id" class="block text-xs font-medium text-gray-700 mb-1">
+                                Local de Destino *
+                            </label>
+                            <select id="local_emprestado_id" name="local_emprestado_id"
+                                    class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-univc-500 focus:border-univc-500">
+                                <option value="">Selecione...</option>
+                                @foreach($locais as $local)
+                                    <option value="{{ $local->id }}" {{ $emprestimoAtivoForm?->local_emprestado_id == $local->id ? 'selected' : '' }}>
+                                        {{ $local->nome }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
                     </div>
                     
                     <div class="flex space-x-3">

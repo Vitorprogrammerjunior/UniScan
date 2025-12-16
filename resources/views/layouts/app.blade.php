@@ -177,6 +177,13 @@
                 <!-- Separador -->
                 <div class="my-3 border-t border-univc-600" x-show="sidebarOpen"></div>
                 
+                <a href="{{ route('admin.emprestimos.index') }}" 
+                   class="flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 
+                          {{ request()->routeIs('admin.emprestimos.*') ? 'bg-white/20 text-white' : 'hover:bg-white/10' }}">
+                    <i class="fas fa-exchange-alt w-5 text-center"></i>
+                    <span x-show="sidebarOpen" x-cloak>Emprestados</span>
+                </a>
+                
                 <a href="{{ route('admin.relatorios.index') }}" 
                    class="flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 
                           {{ request()->routeIs('admin.relatorios.*') ? 'bg-white/20 text-white' : 'hover:bg-white/10' }}">

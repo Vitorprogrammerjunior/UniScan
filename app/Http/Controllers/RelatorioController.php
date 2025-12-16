@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Patrimonio;
 use App\Models\TipoPatrimonio;
 use App\Models\LocalArmazenamento;
+use App\Models\Emprestimo;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
 
@@ -37,13 +38,19 @@ class RelatorioController extends Controller
 
         $patrimonios = $query->orderBy('codigo_barra')->get();
 
+        // Buscar empréstimos do mês atual
+        $emprestimosDoMes = Emprestimo::with(['patrimonio', 'localOriginal', 'localEmprestado', 'user'])
+            ->doMesAtual()
+            ->orderBy('data_emprestimo', 'desc')
+            ->get();
+
         $filtros = [
             'tipo' => $request->filled('tipo') ? TipoPatrimonio::find($request->tipo)?->nome : 'Todos',
             'local' => $request->filled('local') ? LocalArmazenamento::find($request->local)?->nome : 'Todos',
             'situacao' => $request->filled('situacao') ? $this->getSituacaoLabel($request->situacao) : 'Todas',
         ];
 
-        $pdf = Pdf::loadView('admin.relatorios.pdf', compact('patrimonios', 'filtros'));
+        $pdf = Pdf::loadView('admin.relatorios.pdf', compact('patrimonios', 'filtros', 'emprestimosDoMes'));
         
         return $pdf->download('relatorio-patrimonios-' . date('Y-m-d-His') . '.pdf');
     }

@@ -58,6 +58,41 @@
                 </div>
             </div>
             
+            @php
+                $emprestimoAtivo = $patrimonio->emprestimos()->where('devolvido', false)->first();
+            @endphp
+            
+            @if($emprestimoAtivo)
+            <!-- Informações do Empréstimo -->
+            <div class="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-xl">
+                <div class="flex items-center space-x-2 text-yellow-700 mb-3">
+                    <i class="fas fa-exchange-alt"></i>
+                    <span class="font-semibold">Empréstimo Ativo</span>
+                </div>
+                
+                <div class="flex items-center justify-center space-x-3 py-3">
+                    <span class="px-4 py-2 bg-blue-100 text-blue-700 rounded-xl font-semibold">
+                        {{ $emprestimoAtivo->localOriginal->nome }}
+                    </span>
+                    <div class="flex flex-col items-center">
+                        <i class="fas fa-arrows-left-right text-yellow-600 text-xl"></i>
+                        <span class="text-xs text-yellow-600 mt-1">emprestado para</span>
+                    </div>
+                    <span class="px-4 py-2 bg-green-100 text-green-700 rounded-xl font-semibold">
+                        {{ $emprestimoAtivo->localEmprestado->nome }}
+                    </span>
+                </div>
+                
+                <div class="text-center text-sm text-yellow-600 mt-2">
+                    <i class="fas fa-clock mr-1"></i>
+                    Desde {{ $emprestimoAtivo->data_emprestimo->format('d/m/Y H:i') }}
+                    @if($emprestimoAtivo->user)
+                        • Por {{ $emprestimoAtivo->user->name }}
+                    @endif
+                </div>
+            </div>
+            @endif
+            
             <div class="flex items-center justify-end space-x-4 mt-6 pt-6 border-t border-gray-200">
                 <a href="{{ route('admin.patrimonios.index') }}" 
                    class="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors">

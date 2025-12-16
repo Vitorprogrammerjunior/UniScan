@@ -10,6 +10,7 @@ use App\Http\Controllers\PublicController;
 use App\Http\Controllers\QrCodeController;
 use App\Http\Controllers\RelatorioController;
 use App\Http\Controllers\UsuarioController;
+use App\Http\Controllers\EmprestimoController;
 
 // Rota pública - verificar patrimônio via QR Code
 Route::get('/', function () {
@@ -53,6 +54,9 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     // Relatórios
     Route::get('/relatorios', [RelatorioController::class, 'index'])->name('relatorios.index');
     Route::post('/relatorios/gerar', [RelatorioController::class, 'gerar'])->name('relatorios.gerar');
+    
+    // Emprestados
+    Route::get('/emprestimos', [EmprestimoController::class, 'index'])->name('emprestimos.index');
     
     // Marcar versão como vista
     Route::post('/versao-vista', function () {
