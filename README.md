@@ -364,8 +364,3 @@ php artisan emprestimos:limpar
 
 Em caso de dúvidas, entre em contato com a equipe de TI da UNIVC.
 
----
-
-<p align="center">
-  Desenvolvido com ❤️ para <strong>UNIVC</strong>
-</p>
