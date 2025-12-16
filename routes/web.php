@@ -54,6 +54,12 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::get('/relatorios', [RelatorioController::class, 'index'])->name('relatorios.index');
     Route::post('/relatorios/gerar', [RelatorioController::class, 'gerar'])->name('relatorios.gerar');
     
+    // Marcar versão como vista
+    Route::post('/versao-vista', function () {
+        auth()->user()->update(['versao_vista' => config('versao.atual')]);
+        return response()->json(['success' => true]);
+    })->name('versao.vista');
+    
     // Rota secreta - Gerenciamento de Usuários (Admin Master)
     Route::prefix('master')->name('master.')->group(function () {
         Route::get('/usuarios', [UsuarioController::class, 'index'])->name('usuarios.index');

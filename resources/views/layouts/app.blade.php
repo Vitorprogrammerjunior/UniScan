@@ -262,19 +262,22 @@
     @php
         $versaoAtual = config('versao.atual');
         $changelog = config('versao.changelog.' . $versaoAtual);
+        $mostrarPopup = auth()->check() && auth()->user()->versao_vista !== $versaoAtual;
     @endphp
     
+    @if($mostrarPopup)
     <div x-data="{ 
-            showModal: false,
-            versao: '{{ $versaoAtual }}',
-            init() {
-                const versaoVista = localStorage.getItem('uniscan_versao_vista');
-                if (versaoVista !== this.versao) {
-                    this.showModal = true;
-                }
-            },
-            fechar() {
-                localStorage.setItem('uniscan_versao_vista', this.versao);
+            showModal: true,
+            loading: false,
+            async fechar() {
+                this.loading = true;
+                await fetch('{{ route('admin.versao.vista') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    }
+                });
                 this.showModal = false;
             }
          }"
@@ -282,61 +285,106 @@
          x-cloak
          class="fixed inset-0 z-50 overflow-y-auto">
         
-        <!-- Backdrop -->
+        <!-- Backdrop com blur -->
         <div x-show="showModal" 
-             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter="transition ease-out duration-500"
              x-transition:enter-start="opacity-0"
              x-transition:enter-end="opacity-100"
-             x-transition:leave="transition ease-in duration-200"
+             x-transition:leave="transition ease-in duration-300"
              x-transition:leave-start="opacity-100"
              x-transition:leave-end="opacity-0"
-             class="fixed inset-0 bg-black/50"></div>
+             class="fixed inset-0 bg-black/60 backdrop-blur-sm"></div>
         
         <!-- Modal -->
         <div class="flex items-center justify-center min-h-screen p-4">
             <div x-show="showModal"
-                 x-transition:enter="transition ease-out duration-300"
-                 x-transition:enter-start="opacity-0 scale-90"
-                 x-transition:enter-end="opacity-100 scale-100"
-                 x-transition:leave="transition ease-in duration-200"
+                 x-transition:enter="transition ease-out duration-500"
+                 x-transition:enter-start="opacity-0 scale-75 translate-y-8"
+                 x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                 x-transition:leave="transition ease-in duration-300"
                  x-transition:leave-start="opacity-100 scale-100"
-                 x-transition:leave-end="opacity-0 scale-90"
-                 class="relative bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden">
+                 x-transition:leave-end="opacity-0 scale-75"
+                 class="relative bg-white rounded-3xl shadow-2xl max-w-md w-full overflow-hidden">
                 
-                <!-- Header -->
-                <div class="bg-gradient-to-r from-univc-600 to-univc-700 px-6 py-8 text-center">
-                    <div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                        <i class="fas fa-rocket text-white text-2xl"></i>
+                <!-- Confetes animados -->
+                <div class="absolute inset-0 overflow-hidden pointer-events-none">
+                    <div class="confetti"></div>
+                </div>
+                
+                <!-- Header com animação -->
+                <div class="relative bg-gradient-to-br from-univc-500 via-univc-600 to-univc-700 px-6 py-10 text-center overflow-hidden">
+                    <!-- Círculos decorativos animados -->
+                    <div class="absolute top-0 left-0 w-32 h-32 bg-white/10 rounded-full -translate-x-1/2 -translate-y-1/2 animate-pulse"></div>
+                    <div class="absolute bottom-0 right-0 w-24 h-24 bg-white/10 rounded-full translate-x-1/2 translate-y-1/2 animate-pulse" style="animation-delay: 0.5s"></div>
+                    
+                    <div class="relative">
+                        <div class="w-20 h-20 bg-white rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg animate-bounce" style="animation-duration: 2s">
+                            <i class="fas fa-sparkles text-univc-600 text-3xl"></i>
+                        </div>
+                        <span class="inline-block px-3 py-1 bg-white/20 rounded-full text-white text-xs font-medium mb-3">
+                            ✨ NOVA VERSÃO
+                        </span>
+                        <h2 class="text-2xl font-bold text-white">{{ $changelog['titulo'] ?? 'Atualização!' }}</h2>
+                        <p class="text-univc-200 text-sm mt-2">
+                            <i class="fas fa-code-branch mr-1"></i> Versão {{ $versaoAtual }} • {{ $changelog['data'] ?? '' }}
+                        </p>
                     </div>
-                    <h2 class="text-2xl font-bold text-white">{{ $changelog['titulo'] ?? 'Atualização!' }}</h2>
-                    <p class="text-univc-200 text-sm mt-1">Versão {{ $versaoAtual }} • {{ $changelog['data'] ?? '' }}</p>
                 </div>
                 
                 <!-- Conteúdo -->
                 <div class="px-6 py-6">
-                    <p class="text-gray-600 text-sm mb-4">Confira o que há de novo:</p>
-                    <ul class="space-y-3">
-                        @foreach($changelog['mudancas'] ?? [] as $mudanca)
-                            <li class="flex items-start space-x-3">
-                                <span class="flex-shrink-0 w-5 h-5 bg-univc-100 rounded-full flex items-center justify-center mt-0.5">
-                                    <i class="fas fa-check text-univc-600 text-xs"></i>
+                    <p class="text-gray-500 text-sm mb-5 text-center">Olá <strong class="text-univc-600">{{ auth()->user()->name }}</strong>! Confira as novidades:</p>
+                    
+                    <div class="space-y-3">
+                        @foreach($changelog['mudancas'] ?? [] as $index => $mudanca)
+                            <div class="flex items-start space-x-3 p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors"
+                                 style="animation: slideIn 0.5s ease-out {{ ($index + 1) * 0.1 }}s both">
+                                @php
+                                    $cores = [
+                                        'blue' => 'bg-blue-100 text-blue-600',
+                                        'green' => 'bg-green-100 text-green-600',
+                                        'purple' => 'bg-purple-100 text-purple-600',
+                                        'red' => 'bg-red-100 text-red-600',
+                                        'yellow' => 'bg-yellow-100 text-yellow-600',
+                                    ];
+                                    $corClasse = $cores[$mudanca['cor'] ?? 'green'] ?? $cores['green'];
+                                @endphp
+                                <span class="flex-shrink-0 w-10 h-10 {{ $corClasse }} rounded-xl flex items-center justify-center">
+                                    <i class="fas {{ $mudanca['icone'] ?? 'fa-check' }}"></i>
                                 </span>
-                                <span class="text-gray-700 text-sm">{{ $mudanca }}</span>
-                            </li>
+                                <span class="text-gray-700 text-sm pt-2">{{ $mudanca['texto'] ?? $mudanca }}</span>
+                            </div>
                         @endforeach
-                    </ul>
+                    </div>
                 </div>
                 
                 <!-- Footer -->
                 <div class="px-6 pb-6">
                     <button @click="fechar()" 
-                            class="w-full px-6 py-3 bg-univc-600 text-white rounded-xl hover:bg-univc-700 transition-colors font-medium">
-                        <i class="fas fa-thumbs-up mr-2"></i> Entendi!
+                            :disabled="loading"
+                            class="w-full px-6 py-4 bg-gradient-to-r from-univc-600 to-univc-700 text-white rounded-xl hover:from-univc-700 hover:to-univc-800 transition-all duration-300 font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:opacity-50">
+                        <span x-show="!loading">
+                            <i class="fas fa-rocket mr-2"></i> Vamos lá!
+                        </span>
+                        <span x-show="loading">
+                            <i class="fas fa-spinner fa-spin mr-2"></i> Salvando...
+                        </span>
                     </button>
+                    <p class="text-center text-gray-400 text-xs mt-3">
+                        Obrigado por usar o UniScan! 💚
+                    </p>
                 </div>
             </div>
         </div>
     </div>
+    
+    <style>
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+    </style>
+    @endif
     
     @stack('scripts')
 </body>

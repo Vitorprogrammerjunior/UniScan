@@ -17,23 +17,54 @@ return [
     'changelog' => [
         '1.1.0' => [
             'data' => '16/12/2024',
-            'titulo' => '🎉 Novidades do UniScan!',
+            'titulo' => 'Novidades do UniScan!',
             'mudancas' => [
-                '👥 Sistema multi-usuários - Agora vários usuários podem usar o sistema',
-                '📐 QR Codes menores - Impressão mais compacta e discreta',
-                '🔧 Correção na edição de patrimônios via QR Code',
-                '📢 Pop-up de atualizações - Você será notificado sobre novidades',
+                [
+                    'icone' => 'fa-users',
+                    'cor' => 'blue',
+                    'texto' => 'Sistema Multi-usuários - Agora vários usuários podem gerenciar o sistema simultaneamente',
+                ],
+                [
+                    'icone' => 'fa-bell',
+                    'cor' => 'purple',
+                    'texto' => 'Sistema de Atualizações - Você será notificado sempre que houver novidades no sistema',
+                ],
+                [
+                    'icone' => 'fa-qrcode',
+                    'cor' => 'green',
+                    'texto' => 'QR Codes Compactos - Impressão menor e mais discreta para etiquetas',
+                ],
+                [
+                    'icone' => 'fa-bug',
+                    'cor' => 'red',
+                    'texto' => 'Correções - Edição de patrimônios via QR Code funcionando perfeitamente',
+                ],
             ],
         ],
         '1.0.0' => [
             'data' => '15/12/2024',
-            'titulo' => '🚀 Lançamento do UniScan!',
+            'titulo' => 'Lançamento do UniScan!',
             'mudancas' => [
-                'Sistema de gestão de patrimônios com QR Code',
-                'Cadastro de tipos e locais',
-                'Geração de QR Codes em lote',
-                'Relatórios em PDF',
-                'Dashboard com estatísticas',
+                [
+                    'icone' => 'fa-rocket',
+                    'cor' => 'green',
+                    'texto' => 'Sistema de gestão de patrimônios com QR Code',
+                ],
+                [
+                    'icone' => 'fa-tags',
+                    'cor' => 'blue',
+                    'texto' => 'Cadastro de tipos e locais de armazenamento',
+                ],
+                [
+                    'icone' => 'fa-print',
+                    'cor' => 'purple',
+                    'texto' => 'Geração de QR Codes em lote para impressão',
+                ],
+                [
+                    'icone' => 'fa-file-pdf',
+                    'cor' => 'red',
+                    'texto' => 'Relatórios em PDF com filtros avançados',
+                ],
             ],
         ],
     ],
